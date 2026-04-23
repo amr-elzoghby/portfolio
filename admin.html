@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Admin — 3MR.DEV</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080808;--panel:#0f0f0f;--card:#111;--border:#1c1c1c;--border2:#2a2a2a;
+  --white:#f0ede6;--muted:#888;--dim:#555;--green:#44cc88;--red:#ff5555;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* ═══ LOGIN ═══ */
+#login-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+}
+.login-box{border:1px solid var(--border2);padding:3rem 3.5rem;width:380px;background:var(--panel)}
+.login-logo{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;letter-spacing:.15em;margin-bottom:.3rem}
+.login-sub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase;margin-bottom:2.5rem}
+.lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.inp{width:100%;background:var(--bg);border:1px solid var(--border2);color:var(--white);padding:.75rem 1rem;font-family:'Space Mono',monospace;font-size:13px;outline:none;transition:border-color .2s;margin-bottom:1.5rem}
+.inp:focus{border-color:rgba(240,237,230,.4)}
+.btn-login{width:100%;padding:.9rem;background:var(--white);color:var(--bg);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.18em;text-transform:uppercase;border:none;cursor:pointer;transition:opacity .2s}
+.btn-login:hover{opacity:.85}
+#login-err{color:var(--red);font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:1rem;display:none}
+
+/* ═══ APP ═══ */
+#app{display:none}
+header{position:sticky;top:0;z-index:100;background:rgba(8,8,8,.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between}
+.h-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:.12em}
+.h-badge{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.18em;color:var(--green);text-transform:uppercase;border:1px solid var(--green);padding:3px 8px}
+.logout-btn{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:transparent;border:1px solid var(--border2);padding:.4rem .9rem;cursor:pointer;transition:color .2s,border-color .2s}
+.logout-btn:hover{color:var(--red);border-color:var(--red)}
+.view-site{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s}
+.view-site:hover{color:var(--white)}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--panel);padding:0 2rem}
+.tab{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:1rem 1.4rem;cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.tab.active{color:var(--white);border-bottom-color:var(--white)}
+
+/* PANELS */
+.panel{display:none;padding:2.5rem 2rem;max-width:960px;margin:0 auto}
+.panel.active{display:block}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:2.2rem;letter-spacing:.06em;margin-bottom:.3rem}
+.panel-sub{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:2rem}
+hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
+
+/* FORM */
+.field{margin-bottom:1.2rem}
+.field label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.5rem}
+.field input,.field textarea,.field select{width:100%;background:var(--card);border:1px solid var(--border2);color:var(--white);padding:.7rem 1rem;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;transition:border-color .2s;resize:vertical}
+.field input:focus,.field textarea:focus{border-color:rgba(240,237,230,.4)}
+.field textarea{min-height:80px;line-height:1.7}
+.row-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+
+/* SAVE BTN */
+.save-btn{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;background:var(--white);color:var(--bg);border:none;padding:.8rem 2rem;cursor:pointer;transition:opacity .2s,transform .1s;display:inline-block}
+.save-btn:hover{opacity:.88}
+.save-btn:active{transform:scale(.98)}
+.saved-msg{font-family:'Space Mono',monospace;font-size:9px;color:var(--green);letter-spacing:.15em;margin-left:1rem;opacity:0;transition:opacity .3s;vertical-align:middle}
+.saved-msg.show{opacity:1}
+
+/* ADD FORM BOX */
+.add-box{border:1px solid var(--border2);padding:1.8rem;background:var(--card);margin-bottom:2rem}
+.add-box-title{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:1.5rem}
+
+/* TAGS */
+.tags-wrap{background:var(--card);border:1px solid var(--border2);padding:.5rem;display:flex;flex-wrap:wrap;gap:.4rem;cursor:text;min-height:42px;align-items:center}
+.tag-pill{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;border:1px solid var(--border2);padding:3px 8px;display:flex;align-items:center;gap:.4rem;color:var(--white)}
+.tag-pill button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0;line-height:1;transition:color .2s}
+.tag-pill button:hover{color:var(--red)}
+.tags-wrap input{background:transparent;border:none;outline:none;color:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;min-width:80px;flex:1}
+
+/* ─── CERT CARDS GRID ─── */
+.certs-admin-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  margin-bottom:1.5rem;
+}
+.cert-admin-card{
+  background:var(--card);
+  padding:1.4rem;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:1rem;
+  position:relative;
+  min-height:140px;
+}
+.cert-admin-card:hover{background:#141414}
+.cert-card-iss{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.cert-card-name{font-size:13px;font-weight:500;line-height:1.4;margin:.3rem 0}
+.cert-card-desc{font-size:11.5px;color:var(--muted);line-height:1.5}
+.cert-card-dt{font-family:'Space Mono',monospace;font-size:8px;color:var(--dim)}
+.cert-del{
+  position:absolute;top:.6rem;right:.6rem;
+  font-family:'Space Mono',monospace;font-size:9px;
+  color:var(--dim);background:transparent;border:none;cursor:pointer;
+  padding:.2rem .4rem;transition:color .2s;
+}
+.cert-del:hover{color:var(--red)}
+
+/* ─── PROJECT CARDS ─── */
+.proj-admin-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+.proj-admin-card{background:var(--card);padding:1.4rem 1.6rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;position:relative}
+.proj-admin-card:hover{background:#141414}
+.proj-card-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--border2);line-height:1;flex-shrink:0}
+.proj-card-info{flex:1}
+.proj-card-title{font-size:14px;font-weight:500;margin-bottom:.3rem}
+.proj-card-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:.5rem}
+.proj-card-stack{display:flex;flex-wrap:wrap;gap:4px}
+.proj-tag{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border2);padding:2px 6px;color:var(--dim)}
+.proj-del{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--red);background:transparent;border:1px solid rgba(255,85,85,.25);padding:.3rem .7rem;cursor:pointer;transition:background .2s;flex-shrink:0;align-self:flex-start}
+.proj-del:hover{background:var(--red);color:#fff}
+
+.empty-state{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--dim);text-align:center;padding:2.5rem;background:var(--card);border:1px solid var(--border)}
+
+/* upload area */
+.upload-area{border:1px dashed var(--border2);padding:1rem;text-align:center;cursor:pointer;transition:border-color .2s;background:var(--bg)}
+.upload-area:hover{border-color:rgba(240,237,230,.4)}
+.upload-area label{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.upload-preview{width:100%;height:90px;object-fit:cover;margin-top:.6rem;border:1px solid var(--border2);display:none}
+.cert-img-thumb{width:100%;height:80px;object-fit:cover;border-radius:2px;margin-bottom:.6rem;border:1px solid var(--border2)}
+
+/* edit mode banner */
+#edit-banner{
+  display:none;
+  background:rgba(255,200,50,.1);
+  border:1px solid rgba(255,200,50,.4);
+  border-radius:2px;
+  padding:.7rem 1.2rem;
+  margin-bottom:1rem;
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  letter-spacing:.12em;
+  color:#ffcc44;
+  text-transform:uppercase;
+}
+#edit-banner.visible{display:block}
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">3MR.DEV</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <label class="lbl">Password</label>
+    <div id="login-err">❌ Wrong password, try again.</div>
+    <input class="inp" type="password" id="pw-input" placeholder="Enter password…"/>
+    <button class="btn-login" onclick="doLogin()">Unlock Dashboard →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div style="display:flex;align-items:center;gap:1.2rem">
+      <span class="h-logo">3MR.DEV</span>
+      <span class="h-badge">● Admin</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:1.5rem">
+      <a class="view-site" href="amr-saad-portfolio (2).html" target="_blank">↗ View Site</a>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('about',this)">About Me</div>
+    <div class="tab" onclick="switchTab('projects',this)">Projects</div>
+    <div class="tab" onclick="switchTab('certs',this)">Certifications</div>
+  </div>
+
+  <!-- ══ ABOUT ══ -->
+  <div class="panel active" id="panel-about">
+    <div class="panel-title">About Me</div>
+    <div class="panel-sub">Edit your bio shown in the About section</div>
+    <div class="field"><label>Section Heading</label><input type="text" id="ab-heading"/></div>
+    <div class="field"><label>Paragraph 1</label><textarea id="ab-p1"></textarea></div>
+    <div class="field"><label>Paragraph 2</label><textarea id="ab-p2"></textarea></div>
+    <div class="field"><label>Paragraph 3 (Quote / Italic)</label><input type="text" id="ab-p3"/></div>
+    <button class="save-btn" onclick="saveAbout()">Save Changes</button>
+    <span class="saved-msg" id="about-saved">✓ Saved!</span>
+  </div>
+
+  <!-- ══ PROJECTS ══ -->
+  <div class="panel" id="panel-projects">
+    <div class="panel-title">Projects</div>
+    <div class="panel-sub">Add, edit or remove projects</div>
+
+    <div id="proj-admin-list"></div>
+
+    <hr class="div"/>
+    <div class="add-box">
+      <div class="add-box-title" id="proj-form-title">➕ Add New Project</div>
+      <div class="row-2">
+        <div class="field"><label>Project Title *</label><input type="text" id="pj-title" placeholder="E-Commerce Platform"/></div>
+        <div class="field"><label>Link URL</label><input type="text" id="pj-url" placeholder="https://github.com/…"/></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="pj-desc" placeholder="What does it do and what problem does it solve?"></textarea></div>
+      <div class="field">
+        <label>Tech Stack (press Enter after each tag)</label>
+        <div class="tags-wrap" id="pj-tags-wrap" onclick="document.getElementById('pj-tag-inp').focus()">
+          <input id="pj-tag-inp" placeholder="AWS, Docker…" onkeydown="addTag(event,'pj')"/>
+        </div>
+      </div>
+      <div id="edit-banner">✏️ Edit Mode — <span id="edit-banner-name"></span></div>
+      <button class="save-btn" id="pj-save-btn" onclick="addProject()">✨ Add Project</button>
+      <button class="save-btn" id="pj-cancel-btn" style="display:none; background:var(--red); color:#fff; margin-left:10px" onclick="cancelEditProj()">&#10005; Cancel Edit</button>
+      <span class="saved-msg" id="proj-saved">✓ Saved!</span>
+    </div>
+  </div>
+
+  <!-- ══ CERTIFICATIONS ══ -->
+  <div class="panel" id="panel-certs">
+    <div class="panel-title">Certifications</div>
+    <div class="panel-sub">Add or remove certifications</div>
+
+    <div id="cert-admin-grid"></div>
+
+    <hr class="div"/>
+    <div class="add-box">
+      <div class="add-box-title" id="cert-form-title">➕ Add New Certification</div>
+      <div class="row-3">
+        <div class="field"><label>Issuer *</label><input type="text" id="ct-iss" placeholder="AWS"/></div>
+        <div class="field"><label>Date</label><input type="text" id="ct-dt" placeholder="Jan 2025"/></div>
+        <div class="field"><label>Cert Name *</label><input type="text" id="ct-nm" placeholder="AWS Cloud Practitioner"/></div>
+      </div>
+      <div class="field"><label>Description (optional)</label><textarea id="ct-desc" style="min-height:65px" placeholder="Brief note about this certification…"></textarea></div>
+      <div class="field">
+        <label>Certificate Image (optional)</label>
+        <div class="upload-area" onclick="document.getElementById('ct-img-input').click()">
+          <input type="file" id="ct-img-input" accept="image/*" onchange="previewCertImg(this)"/>
+          <label>📎 Click to upload image (JPG, PNG, etc.)</label>
+          <img id="ct-img-preview" class="upload-preview" alt="preview" style="display:none"/>
+        </div>
+      </div>
+      <div id="cert-edit-banner" style="display:none; background:rgba(255,200,50,.1); border:1px solid rgba(255,200,50,.3); padding:.6rem 1rem; margin-bottom:1rem; font-family:'Space Mono',monospace; font-size:10px; color:#ffcc44;">
+        ✏️ Editing Certification — <span id="cert-edit-nm"></span>
+      </div>
+      <button class="save-btn" id="ct-save-btn" onclick="addCert()">Add Certification</button>
+      <button class="save-btn" id="ct-cancel-btn" style="display:none; background:var(--red); color:#fff; margin-left:10px" onclick="cancelEditCert()">Cancel Edit</button>
+      <span class="saved-msg" id="cert-saved">✓ Saved!</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════
+//   AUTH  (password: amr2025)
+// ══════════════════════
+const PASS_B64 = btoa('amr2025'); // "YW1yMjAyNQ=="
+
+function doLogin(){
+  const pw = document.getElementById('pw-input').value;
+  const err = document.getElementById('login-err');
+  if(btoa(pw) === PASS_B64){
+    sessionStorage.setItem('admin_ok','1');
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    loadAll();
+  } else {
+    err.style.display='block';
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-input').focus();
+  }
+}
+function doLogout(){sessionStorage.removeItem('admin_ok');location.reload();}
+document.getElementById('pw-input').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+if(sessionStorage.getItem('admin_ok')==='1'){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  window.addEventListener('load',loadAll);
+}
+
+// ══════════════════════
+//   TABS
+// ══════════════════════
+function switchTab(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ══════════════════════
+//   FIREBASE + DATA STORE
+// ══════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDIh4ddivOjjHFFUuo51yYiEonf83qcMus",
+  authDomain: "portfolio-a-s.firebaseapp.com",
+  projectId: "portfolio-a-s",
+  storageBucket: "portfolio-a-s.firebasestorage.app",
+  messagingSenderId: "766108465057",
+  appId: "1:766108465057:web:c78deed4f9362bbddafde0",
+  measurementId: "G-Z0P95RHQ81"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const DOC = db.collection('portfolio').doc('data');
+console.log("Firebase Initialized!");
+
+// In-memory cache so all existing sync code still works
+let fsCache = {};
+
+function get(key, def) {
+  return (fsCache[key] !== undefined && fsCache[key] !== null) ? fsCache[key] : def;
+}
+
+function set(key, val) {
+  fsCache[key] = val;
+  console.log("Saving to Firestore:", key, val);
+  DOC.set({ [key]: val }, { merge: true })
+    .then(() => console.log("Firestore Sync OK!"))
+    .catch(e => { console.error('Firestore ERR:', e); alert("Error saving: check firewall/blockers"); });
+}
+
+function flash(id){const e=document.getElementById(id);e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
+
+// Load from Firestore then render
+async function loadAll() {
+  try {
+    document.body.style.opacity = '0.5';
+    const snap = await DOC.get();
+    if (snap.exists) {
+      fsCache = snap.data();
+    }
+  } catch(e) {
+    console.warn('Firestore read failed, using defaults:', e);
+  } finally {
+    document.body.style.opacity = '1';
+  }
+  loadAbout();
+  renderProjects();
+  renderCerts();
+}
+
+// ══════════════════════
+//   ABOUT
+// ══════════════════════
+const DEF_ABOUT={
+  heading:"Building things that run themselves.",
+  p1:"I'm Amr Saad, 18, from Cairo — a junior DevOps engineer obsessed with automation. It started with curiosity about MLOps: deploying AI models, monitoring them in production, watching systems work without human intervention.",
+  p2:"That obsession evolved into a full DevOps commitment. Infrastructure as code. CI/CD pipelines. Cloud architecture. The plan: build solid foundations, then bridge into MLOps to connect data science with real production systems.",
+  p3:'"If it can be automated — it will be automated."'
+};
+function loadAbout(){
+  const d=get('about',DEF_ABOUT);
+  document.getElementById('ab-heading').value=d.heading||DEF_ABOUT.heading;
+  document.getElementById('ab-p1').value=d.p1||DEF_ABOUT.p1;
+  document.getElementById('ab-p2').value=d.p2||DEF_ABOUT.p2;
+  document.getElementById('ab-p3').value=d.p3||DEF_ABOUT.p3;
+}
+function saveAbout(){
+  set('about',{
+    heading:document.getElementById('ab-heading').value,
+    p1:document.getElementById('ab-p1').value,
+    p2:document.getElementById('ab-p2').value,
+    p3:document.getElementById('ab-p3').value,
+  });
+  flash('about-saved');
+}
+
+// ══════════════════════
+//   TAGS
+// ══════════════════════
+let tags={pj:[]};
+function addTag(e,ns){
+  if(e.key==='Enter'||e.key===','){
+    e.preventDefault();
+    const v=e.target.value.trim().replace(',','');
+    if(!v)return;
+    tags[ns].push(v);
+    e.target.value='';
+    renderTags(ns);
+  }
+}
+function removeTag(ns,i){tags[ns].splice(i,1);renderTags(ns);}
+function renderTags(ns){
+  const wrap=document.getElementById(ns+'-tags-wrap');
+  wrap.querySelectorAll('.tag-pill').forEach(p=>p.remove());
+  tags[ns].forEach((t,i)=>{
+    const p=document.createElement('div');
+    p.className='tag-pill';
+    p.innerHTML=`${t}<button onclick="removeTag('${ns}',${i})">×</button>`;
+    wrap.insertBefore(p,document.getElementById(ns+'-tag-inp'));
+  });
+}
+
+// ══════════════════════
+//   PROJECTS
+// ══════════════════════
+const DEF_PROJECTS=[
+  {title:"E-Commerce Microservices",desc:"Full AWS deployment with auto-scaling EC2, Docker containers, Terraform IaC and GitHub Actions CI/CD.",url:"#",stack:["AWS","Terraform","Docker","GitHub Actions"]},
+  {title:"Grafana Monitoring Stack",desc:"Real-time server monitoring with Grafana + AWS CloudWatch dashboards, Nginx reverse proxy.",url:"#",stack:["Grafana","AWS","Nginx","Python"]},
+  {title:"MLOps Pipeline",desc:"End-to-end model deployment: training → containerization → production serving with CI/CD.",url:"#",stack:["Python","Docker","GitHub Actions","Linux"]}
+];
+
+let editProjIndex = -1;
+
+function addProject(){
+  const title=document.getElementById('pj-title').value.trim();
+  if(!title){document.getElementById('pj-title').focus();return;}
+  
+  const extraTag = document.getElementById('pj-tag-inp').value.trim();
+  if(extraTag) {
+    tags.pj.push(extraTag);
+    document.getElementById('pj-tag-inp').value = '';
+    renderTags('pj');
+  }
+
+  const projs=get('projects',DEF_PROJECTS);
+  
+  const pData = {
+    title,
+    desc:document.getElementById('pj-desc').value.trim(),
+    url:document.getElementById('pj-url').value.trim()||'#',
+    stack:[...tags.pj]
+  };
+
+  if(editProjIndex > -1){
+    projs[editProjIndex] = pData;
+  } else {
+    projs.push(pData);
+  }
+
+  set('projects',projs);
+  const msg = editProjIndex > -1 ? "Project Updated Successfully! Remember to refresh your main portfolio site." : "Project Added Successfully!";
+  resetProjForm();
+  renderProjects();
+  flash('proj-saved');
+  alert(msg);
+}
+
+function resetProjForm(){
+  editProjIndex = -1;
+  document.getElementById('pj-title').value='';
+  document.getElementById('pj-desc').value='';
+  document.getElementById('pj-url').value='';
+  document.getElementById('proj-form-title').textContent = '\u2795 Add New Project';
+  document.getElementById('pj-save-btn').innerHTML = '\u2728 Add Project';
+  document.getElementById('pj-cancel-btn').style.display = 'none';
+  document.getElementById('edit-banner').classList.remove('visible');
+  tags.pj=[];renderTags('pj');
+}
+
+function editProject(i){
+  const projs=get('projects',DEF_PROJECTS);
+  const p = projs[i];
+  editProjIndex = i;
+
+  // Fill form data
+  document.getElementById('pj-title').value = p.title || '';
+  document.getElementById('pj-desc').value  = p.desc  || '';
+  document.getElementById('pj-url').value   = p.url   || '';
+  tags.pj = Array.isArray(p.stack) ? [...p.stack] : [];
+  renderTags('pj');
+
+  // Switch UI to edit mode
+  document.getElementById('proj-form-title').textContent = 'Editing Project';
+  document.getElementById('pj-save-btn').innerHTML = '\ud83d\udcbe Update Project';
+  document.getElementById('pj-cancel-btn').style.display = 'inline-block';
+  document.getElementById('edit-banner').classList.add('visible');
+  document.getElementById('edit-banner-name').textContent = p.title;
+
+  // Scroll to form
+  setTimeout(()=>{
+    const box = document.querySelector('.add-box');
+    if(box) box.scrollIntoView({behavior:'smooth', block:'center'});
+    document.getElementById('pj-title').focus();
+  }, 50);
+}
+
+function cancelEditProj(){ resetProjForm(); }
+
+function deleteProject(i){
+  if(!confirm("Are you sure?")) return;
+  const projs=get('projects',DEF_PROJECTS);
+  projs.splice(i,1);
+  set('projects',projs);
+  if(editProjIndex === i) resetProjForm();
+  renderProjects();
+}
+
+function renderProjects(){
+  const projs=get('projects',DEF_PROJECTS);
+  const el=document.getElementById('proj-admin-list');
+  if(!projs.length){el.innerHTML='<div class="empty-state">No projects yet — add one below ↓</div>';return;}
+  el.innerHTML='<div class="proj-admin-list">'+projs.map((p,i)=>`
+    <div class="proj-admin-card">
+      <div class="proj-card-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="proj-card-info">
+        <div class="proj-card-title">${p.title}</div>
+        ${p.desc?`<div class="proj-card-desc">${p.desc}</div>`:''}
+        <div class="proj-card-stack">${(p.stack||[]).map(t=>`<span class="proj-tag">${t}</span>`).join('')}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:5px">
+        <button class="proj-del" style="color:var(--white); border-color:var(--border2)" onclick="editProject(${i})">✏️ Edit</button>
+        <button class="proj-del" onclick="deleteProject(${i})">✕ Delete</button>
+      </div>
+    </div>`).join('')+'</div>';
+}
+
+// ══════════════════════
+//   CERTIFICATIONS
+// ══════════════════════
+let certImgB64 = '';
+let editCertIndex = -1;
+
+function previewCertImg(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    certImgB64 = e.target.result;
+    const prev = document.getElementById('ct-img-preview');
+    prev.src = certImgB64;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function addCert(){
+  const nm=document.getElementById('ct-nm').value.trim();
+  if(!nm){document.getElementById('ct-nm').focus();return;}
+  const certs=get('certs',[]);
+  
+  const cData = {
+    iss:document.getElementById('ct-iss').value.trim(),
+    nm,
+    dt:document.getElementById('ct-dt').value.trim(),
+    desc:document.getElementById('ct-desc').value.trim(),
+    img: certImgB64 || (editCertIndex > -1 ? certs[editCertIndex].img : '')
+  };
+
+  if(editCertIndex > -1){
+    certs[editCertIndex] = cData;
+  } else {
+    certs.push(cData);
+  }
+
+  set('certs',certs);
+  resetCertForm();
+  renderCerts();
+  flash('cert-saved');
+  alert(editCertIndex > -1 ? "Certification Updated!" : "Certification Added!");
+}
+
+function resetCertForm(){
+  editCertIndex = -1;
+  document.getElementById('ct-iss').value='';
+  document.getElementById('ct-nm').value='';
+  document.getElementById('ct-dt').value='';
+  document.getElementById('ct-desc').value='';
+  document.getElementById('ct-img-input').value='';
+  document.getElementById('ct-img-preview').style.display='none';
+  document.getElementById('cert-edit-banner').style.display='none';
+  document.getElementById('cert-form-title').innerText='➕ Add New Certification';
+  document.getElementById('ct-save-btn').innerText='Add Certification';
+  document.getElementById('ct-cancel-btn').style.display='none';
+  certImgB64='';
+}
+
+function editCert(i){
+  const certs=get('certs',[]);
+  const c = certs[i];
+  editCertIndex = i;
+
+  document.getElementById('ct-iss').value=c.iss||'';
+  document.getElementById('ct-nm').value=c.nm||'';
+  document.getElementById('ct-dt').value=c.dt||'';
+  document.getElementById('ct-desc').value=c.desc||'';
+  
+  if(c.img){
+    document.getElementById('ct-img-preview').src=c.img;
+    document.getElementById('ct-img-preview').style.display='block';
+    certImgB64 = c.img;
+  } else {
+    document.getElementById('ct-img-preview').style.display='none';
+    certImgB64 = '';
+  }
+
+  document.getElementById('cert-form-title').innerText='✏️ Editing Certification';
+  document.getElementById('cert-edit-banner').style.display='block';
+  document.getElementById('cert-edit-nm').innerText=c.nm;
+  document.getElementById('ct-save-btn').innerText='💾 Update Certification';
+  document.getElementById('ct-cancel-btn').style.display='inline-block';
+  
+  window.scrollTo({top: document.getElementById('panel-certs').offsetTop - 80, behavior:'smooth'});
+  document.getElementById('ct-iss').focus();
+}
+
+function cancelEditCert(){ resetCertForm(); }
+
+function deleteCert(i){
+  if(!confirm("Delete this certification?")) return;
+  const certs=get('certs',[]);
+  certs.splice(i,1);
+  set('certs',certs);
+  if(editCertIndex===i) resetCertForm();
+  renderCerts();
+}
+function renderCerts(){
+  const certs=get('certs',[]);
+  const el=document.getElementById('cert-admin-grid');
+  if(!certs.length){el.innerHTML='<div class="empty-state">No certifications yet — add one below ↓</div>';return;}
+  el.innerHTML=`<div class="certs-admin-grid">${certs.map((c,i)=>`
+    <div class="cert-admin-card">
+      <div style="display:flex; justify-content:flex-end; gap:5px; position:absolute; top:8px; right:8px; z-index:5">
+        <button class="cert-del" style="position:static; border:1px solid var(--border2); padding:2px 6px" onclick="editCert(${i})">✏️</button>
+        <button class="cert-del" style="position:static; border:1px solid var(--border2); padding:2px 6px" onclick="deleteCert(${i})">✕</button>
+      </div>
+      ${c.img?`<img class="cert-img-thumb" src="${c.img}" alt="cert"/>`:''}
+      <div>
+        <div class="cert-card-iss">${c.iss||'—'}</div>
+        <div class="cert-card-name">${c.nm}</div>
+        ${c.desc?`<div class="cert-card-desc">${c.desc}</div>`:''}
+      </div>
+      <div class="cert-card-dt">${c.dt||''}</div>
+    </div>`).join('')}
+  </div>`;
+}
+</script>
+</body>
+</html>
