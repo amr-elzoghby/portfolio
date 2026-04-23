@@ -17,24 +17,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v3
-
-      - name: Terraform Init & Apply
-        working-directory: ./infra
-        run: |
-          # ننشئ الباكت لو مش موجود (عشان تيراريفورم ميفشلش)
-          aws s3 mb s3://amr-saad-devops-portfolio-2026 --region us-east-1 || true
-          terraform init
-          # نستورد الـ CloudFront الموجود في الـ State (في حالة الـ State فاضي)
-          terraform import aws_cloudfront_distribution.portfolio E3QTIR9CS0WXWM || true
-          terraform apply -auto-approve
-
       - name: Sync Files to S3
         run: |
-          aws s3 sync . s3://amr-saad-devops-portfolio-2026 --delete --exclude "infra/*" --exclude ".git/*" --exclude ".github/*"
+          aws s3 sync . s3://amr-saad-devops-portfolio-2026 \
+            --delete \
+            --exclude "infra/*" \
+            --exclude ".git/*" \
+            --exclude ".github/*"
 
       - name: Invalidate CloudFront Cache
         run: |
-          CF_ID=$(cd infra && terraform output -raw cloudfront_id)
-          aws cloudfront create-invalidation --distribution-id $CF_ID --paths "/*"
+          aws cloudfront create-invalidation \
+            --distribution-id E3QTIR9CS0WXWM \
+            --paths "/*"
