@@ -532,10 +532,32 @@ function previewCertImg(input){
   if(!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    certImgB64 = e.target.result;
-    const prev = document.getElementById('ct-img-preview');
-    prev.src = certImgB64;
-    prev.style.display = 'block';
+    const rawImg = new Image();
+    rawImg.src = e.target.result;
+    rawImg.onload = () => {
+      // Create canvas for compression
+      const canvas = document.createElement('canvas');
+      const MAX_WIDTH = 600;
+      let width = rawImg.width;
+      let height = rawImg.height;
+
+      if (width > MAX_WIDTH) {
+        height *= MAX_WIDTH / width;
+        width = MAX_WIDTH;
+      }
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(rawImg, 0, 0, width, height);
+      
+      // Convert to compressed JPG (0.7 quality)
+      certImgB64 = canvas.toDataURL('image/jpeg', 0.7);
+      
+      const prev = document.getElementById('ct-img-preview');
+      prev.src = certImgB64;
+      prev.style.display = 'block';
+      console.log("Image compressed. New size:", Math.round(certImgB64.length/1024), "KB");
+    };
   };
   reader.readAsDataURL(file);
 }
