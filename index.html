@@ -578,6 +578,8 @@ const _db = firebase.firestore();
 (async function loadPortfolioData(){
   // Defaults — shown if Firebase is empty or unreachable
   const aboutDef={
+    eye: "Junior DevOps & MLOps Engineer — Egypt \u2197",
+    heroDesc: "Automating infrastructure, building CI/CD pipelines, and bridging the gap between machine learning and production systems. Still in high school. Already shipping.",
     heading:"Building things that run themselves.",
     p1:"I'm <strong>Amr Saad</strong>, 18, from Cairo \u2014 a junior DevOps engineer obsessed with automation.",
     p2:"Infrastructure as code. CI/CD pipelines. Cloud architecture. The plan: build solid foundations, then bridge into MLOps.",
@@ -606,6 +608,13 @@ const _db = firebase.firestore();
 
   /* ── ABOUT ── */
   const ab = gd('about', aboutDef);
+
+  // Update Hero Section
+  const hEye = document.querySelector('.hero-eye');
+  if(hEye) hEye.innerHTML = ab.eye || aboutDef.eye;
+  const hDesc = document.querySelector('.hero-desc');
+  if(hDesc) hDesc.innerHTML = ab.heroDesc || aboutDef.heroDesc;
+
   const abEl=document.getElementById('about-body');
   if(abEl){
     abEl.innerHTML=`

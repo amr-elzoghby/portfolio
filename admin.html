@@ -187,8 +187,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
   <!-- ══ ABOUT ══ -->
   <div class="panel active" id="panel-about">
     <div class="panel-title">About Me</div>
-    <div class="panel-sub">Edit your bio shown in the About section</div>
-    <div class="field"><label>Section Heading</label><input type="text" id="ab-heading"/></div>
+    <div class="panel-sub">Edit your bio and hero section intro</div>
+    <div class="field"><label>Hero Tagline (Upper text)</label><input type="text" id="ab-eye" placeholder="Junior DevOps & MLOps Engineer — Egypt \u2197"/></div>
+    <div class="field"><label>Hero Description (Below name)</label><textarea id="ab-hero-desc" placeholder="The short intro under your big name"></textarea></div>
+    <hr class="div" style="margin:1.5rem 0"/>
+    <div class="field"><label>About Section Heading</label><input type="text" id="ab-heading"/></div>
     <div class="field"><label>Paragraph 1</label><textarea id="ab-p1"></textarea></div>
     <div class="field"><label>Paragraph 2</label><textarea id="ab-p2"></textarea></div>
     <div class="field"><label>Paragraph 3 (Quote / Italic)</label><input type="text" id="ab-p3"/></div>
@@ -359,6 +362,8 @@ const DEF_ABOUT={
 };
 function loadAbout(){
   const d=get('about',DEF_ABOUT);
+  document.getElementById('ab-eye').value=d.eye||"Junior DevOps & MLOps Engineer — Egypt \u2197";
+  document.getElementById('ab-hero-desc').value=d.heroDesc||"Automating infrastructure, building CI/CD pipelines, and bridging the gap between machine learning and production systems. Still in high school. Already shipping.";
   document.getElementById('ab-heading').value=d.heading||DEF_ABOUT.heading;
   document.getElementById('ab-p1').value=d.p1||DEF_ABOUT.p1;
   document.getElementById('ab-p2').value=d.p2||DEF_ABOUT.p2;
@@ -366,6 +371,8 @@ function loadAbout(){
 }
 function saveAbout(){
   set('about',{
+    eye:document.getElementById('ab-eye').value,
+    heroDesc:document.getElementById('ab-hero-desc').value,
     heading:document.getElementById('ab-heading').value,
     p1:document.getElementById('ab-p1').value,
     p2:document.getElementById('ab-p2').value,
