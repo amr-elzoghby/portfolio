@@ -346,30 +346,26 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   box-shadow:0 0 8px rgba(240,237,230,.4);
 }
 
-/* NAME LETTER WAVE */
-.name-letter{
-  display:inline-block;
-  transition:transform .2s cubic-bezier(.16,1,.3,1), color .2s, text-shadow .2s;
-  cursor:default;
+/* HERO NAME HOVER */
+.hero-h1 span{
+  transition:letter-spacing .6s cubic-bezier(.16,1,.3,1), color .4s, filter .4s;
+  display:block; cursor:default;
 }
-.hero-h1:hover .name-letter{
-  animation:none;
-}
-.name-letter:hover{
-  transform:translateY(-16px) scale(1.08) !important;
-  color:rgba(240,237,230,.55);
-  text-shadow:0 0 40px rgba(240,237,230,.4),0 0 80px rgba(240,237,230,.15);
+.hero-h1:hover span{
+  letter-spacing:.08em;
+  filter:brightness(1.2);
+  color:var(--white);
 }
 
-/* SCROLL SECTION REVEAL */
-.sec-fade{
+/* SCROLL SECTION REVEAL - STRONG */
+.rv, .words-reveal, .sec-lbl{
   opacity:0;
-  transform:translateY(50px);
-  transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);
+  transform:translateY(100px); /* يجي من تحت خالص */
+  transition:opacity 1.2s cubic-bezier(.16,1,.3,1), transform 1.2s cubic-bezier(.16,1,.3,1) !important;
 }
-.sec-fade.in{
+.rv.on, .words-reveal.on, .sec-lbl.on{
   opacity:1;
-  transform:none;
+  transform:none !important;
 }
 
 @keyframes up{to{opacity:1;transform:none}}
@@ -448,9 +444,9 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
 
   <!-- name + image at the SAME level -->
   <div class="hero-name-row">
-    <h1 class="hero-h1" id="hero-h1">
-      <span class="name-word" id="word-amr"></span>
-      <span class="name-word" id="word-saad"></span>
+    <h1 class="hero-h1">
+      <span>AMR</span>
+      <span>SAAD</span>
     </h1>
 
     <div class="hero-circle-col">
@@ -557,32 +553,6 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
 </footer>
 
 <script>
-// ── Letter Wave on Name
-(function(){
-  const words = [{el:'word-amr',text:'AMR'},{el:'word-saad',text:'SAAD'}];
-  words.forEach(({el,text})=>{
-    const span = document.getElementById(el);
-    if(!span) return;
-    span.innerHTML = text.split('').map((ch,i)=>
-      `<span class="name-letter" style="transition-delay:${i*0.04}s">${ch}</span>`
-    ).join('');
-  });
-  // Ripple neighbours on hover
-  document.querySelectorAll('.name-letter').forEach((letter,idx,all)=>{
-    letter.addEventListener('mouseenter',()=>{
-      all.forEach((l,j)=>{
-        const dist=Math.abs(j-idx);
-        if(dist===0) return;
-        const lift=Math.max(0,8-dist*3);
-        if(lift>0){
-          l.style.transform=`translateY(-${lift}px)`;
-          setTimeout(()=>l.style.transform='',250+dist*60);
-        }
-      });
-    });
-  });
-})();
-
 // ── Scroll Progress Bar
 (function(){
   const bar=document.getElementById('scroll-bar');
@@ -592,16 +562,17 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   },{passive:true});
 })();
 
-// ── Section Fade-in on Scroll
+// ── Section Reveal Trigger
 (function(){
-  document.querySelectorAll('.sec').forEach((el,i)=>{
-    el.classList.add('sec-fade');
-    el.style.transitionDelay=(i*0.05)+'s';
-  });
-  const io=new IntersectionObserver((ents)=>{
-    ents.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}});
-  },{threshold:0.08,rootMargin:'0px 0px -60px 0px'});
-  document.querySelectorAll('.sec-fade').forEach(el=>io.observe(el));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('on');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.rv, .words-reveal, .sec-lbl').forEach(el => observer.observe(el));
 })();
 
 // ── Cursor
