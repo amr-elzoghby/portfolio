@@ -32,6 +32,5 @@ jobs:
 
       - name: Invalidate CloudFront Cache
         run: |
-          # نستخدم output من تيراريفورم عشان نجيب الـ ID
           CF_ID=$(cd infra && terraform output -raw cloudfront_id)
           aws cloudfront create-invalidation --distribution-id $CF_ID --paths "/*"

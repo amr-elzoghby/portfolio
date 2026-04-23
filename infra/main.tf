@@ -85,5 +85,5 @@ resource "aws_cloudfront_distribution" "portfolio" {
     cloudfront_default_certificate = true
   }
 
-  price_class = "PriceClass_100" # Lowest cost (US, Europe, Israel)
+  price_class = "PriceClass_100"
 }
