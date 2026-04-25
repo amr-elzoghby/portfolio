@@ -264,14 +264,31 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 .c-left{padding:4rem;border-right:1px solid var(--border)}
 .c-head{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,7vw,5.5rem);line-height:.88;letter-spacing:.02em;margin-bottom:2rem}
 .c-head em{font-style:normal;-webkit-text-stroke:1px var(--border2);color:transparent}
-.outline{
-  -webkit-text-stroke:1.5px var(--white);
-  color:rgba(240,237,230,0.1); /* Subtle fill to show it's 'white' */
+.highlight{
+  position:relative;
+  color:var(--black); /* الكلمة سودة */
+  padding:0 0.4rem;
+  display:inline-block;
+  z-index:1;
   transition:all .6s cubic-bezier(.16,1,.3,1);
+  transform:translateY(20px);
+  opacity:0;
 }
-.rv.on .outline{
-  -webkit-text-stroke:1.5px var(--white);
-  color:var(--white); /* Solid on reveal */
+.rv.on .highlight{
+  opacity:1;
+  transform:none;
+}
+.highlight::before{
+  content:"";
+  position:absolute;
+  top:55%; left:50%;
+  transform:translate(-50%, -50%) rotate(-1.5deg);
+  width:105%; height:95%;
+  background:var(--white); /* الخلفية بيضاء */
+  z-index:-1;
+  /* شكل "شخبطة" جاد مش منتظم */
+  border-radius: 4px 15px 6px 12px / 20px 5px 15px 8px;
+  box-shadow: 2px 2px 10px rgba(255,255,255,0.1);
 }
 .c-sub{font-size:12.5px;color:var(--muted);line-height:1.8}
 .c-right{padding:4rem;display:flex;flex-direction:column;justify-content:center}
@@ -546,7 +563,7 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   <div class="sec-lbl rv">05 — Contact</div>
   <div class="c-box rv">
     <div class="c-left">
-      <div class="c-head">LET'S<br/><em>BUILD</em><br/>TOGETHER.</div>
+      <div class="c-head">LET'S<br/><span class="highlight">BUILD</span><br/>TOGETHER.</div>
       <p class="c-sub">Open to collaborations, internships, and interesting DevOps/MLOps projects. Always up for automating something new.</p>
     </div>
     <div class="c-right">
