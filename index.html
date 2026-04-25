@@ -382,9 +382,17 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   body{cursor:default !important}
   #cur,#cur2{display:none}
   
-  .hero-name-row{flex-direction:column;align-items:flex-start}
-  .hero-h1{font-size:clamp(3rem,12vw,5rem)}
-  .hero-circle-col{margin-top:2rem}
+  /* NAV FIX - Hide links to prevent overlapping */
+  .nav-links{display:none}
+  #nav{padding:1rem 1.5rem}
+
+  .hero-name-row{flex-direction:column;align-items:center;text-align:center;gap:3rem}
+  .hero-h1{font-size:clamp(4.5rem,18vw,8rem);line-height:0.9}
+  .hero-h1 span{display:block}
+  .hero-circle-col{margin:0 auto}
+  .hero-bottom{text-align:center;align-items:center}
+  .hero-desc{font-size:1.1rem;max-width:100%}
+  .hero-ctas{justify-content:center}
   
   .about-g{grid-template-columns:1fr}
   .about-n{display:none}
@@ -394,13 +402,15 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   
   .certs-g{grid-template-columns:1fr}
   
-  .c-box{grid-template-columns:1fr}
-  .c-left{border-right:none; border-bottom:1px solid var(--border)}
+  .c-box{grid-template-columns:1fr;padding:1.5rem}
+  .c-left{border-right:none; border-bottom:1px solid var(--border); padding-bottom:3rem}
+  .c-right{padding-top:2rem}
 }
 
 @media (max-width: 480px) {
-  .hero-h1{font-size:3.5rem}
+  .hero-h1{font-size:5.5rem}
   .about-body h2{font-size:2.4rem}
+  .hero-desc{font-size:1.05rem}
 }
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
