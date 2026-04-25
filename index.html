@@ -264,6 +264,15 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 .c-left{padding:4rem;border-right:1px solid var(--border)}
 .c-head{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,7vw,5.5rem);line-height:.88;letter-spacing:.02em;margin-bottom:2rem}
 .c-head em{font-style:normal;-webkit-text-stroke:1px var(--border2);color:transparent}
+.outline{
+  -webkit-text-stroke:1px rgba(240,237,230,.5);
+  color:transparent;
+  transition:all .4s;
+}
+.rv.on .outline{
+  -webkit-text-stroke:1px rgba(240,237,230,.9);
+  color:rgba(240,237,230,0.05); /* Slight fill for better readability */
+}
 .c-sub{font-size:12.5px;color:var(--muted);line-height:1.8}
 .c-right{padding:4rem;display:flex;flex-direction:column;justify-content:center}
 .clink{display:flex;align-items:center;gap:1.1rem;text-decoration:none;color:var(--muted);padding:1.25rem 0;border-bottom:1px solid var(--border);transition:color .2s,box-shadow .3s;position:relative}
