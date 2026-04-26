@@ -36,7 +36,8 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  padding:0 2.5rem 4rem;
+  justify-content:center;
+  padding:6rem 2.5rem 4rem;
   position:relative;overflow:hidden;
 }
 
@@ -44,7 +45,6 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 .hero-eye{
   font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:.22em;
   color:var(--muted);text-transform:uppercase;
-  margin-top:auto;
   margin-bottom:1.4rem;
   display:flex;align-items:center;gap:.8rem;
   opacity:0;animation:up .7s .3s forwards
@@ -55,8 +55,9 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 .hero-name-row{
   display:flex;
   align-items:center;
-  justify-content:flex-start;
-  gap:25rem;
+  justify-content:space-between;
+  gap:2rem;
+  max-width:1200px;
 }
 
 /* big name */
