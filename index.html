@@ -1027,6 +1027,10 @@ function prevTestImg() {
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLightbox();closeTestModal();}});
+document.getElementById('test-modal').addEventListener('click', e => {
+  if(e.target.id === 'test-modal') closeTestModal();
+});
+
 
 
 // ── Hero image tilt on mouse
