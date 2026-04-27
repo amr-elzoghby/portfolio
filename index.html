@@ -261,39 +261,51 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 #test-modal{
   position:fixed;inset:0;z-index:9000;
   background:rgba(0,0,0,.95);backdrop-filter:blur(20px);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;transition:opacity 0.4s cubic-bezier(.16,1,.3,1);
+  display:flex;align-items:flex-start; /* Changed from center to start */
+  justify-content:center;
+  padding:5rem 1rem; /* Push down from top */
+  opacity:0;pointer-events:none;transition:all 0.4s cubic-bezier(.16,1,.3,1);
+  overflow-y: auto; /* Allow the entire modal to scroll */
 }
 #test-modal.open{opacity:1;pointer-events:all}
 .test-modal-content{
-  width:90%;max-width:500px; /* Vertical rectangle as requested */
+  width:95%;max-width:500px;
   background:var(--bg);border:1px solid var(--border2);
-  padding:4rem 3rem;position:relative;
+  padding:5rem 3rem 4rem; /* More top padding for the close button */
+  position:relative;
   transition:transform 0.5s cubic-bezier(.16,1,.3,1);
-  transform:translateY(30px);
+  transform:translateY(50px);
 }
 #test-modal.open .test-modal-content{transform:none}
 .test-modal-close{
-  position:absolute;top:1.5rem;right:1.5rem;
-  background:transparent;border:none;color:var(--dim);
+  position:absolute;top:1rem;right:1rem;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border2);
+  color:var(--white);padding: 0.5rem 1rem;
   font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;
+  z-index: 10;
 }
-.test-modal-close:hover{color:var(--white)}
+.test-modal-close:hover{background:var(--white);color:var(--bg)}
+
 
 #test-text-area{display:none;flex-direction:column;align-items:center;text-align:center}
 #test-img-area{display:none;flex-direction:column;align-items:center;gap:1.5rem}
 
 .test-quote{
-  font-size:1.8rem;font-family:'Bebas Neue',sans-serif;line-height:1.2;
-  letter-spacing:0.02em;color:var(--white);position:relative;
-  margin-bottom:1.5rem;
+  font-size:1.4rem; /* Slightly smaller for better fit */
+  font-family:'DM Sans',sans-serif; /* Changed back for readability */
+  font-weight: 300;
+  line-height:1.7;
+  letter-spacing:0.01em;color:var(--white);position:relative;
+  margin-bottom:2rem;
+  text-align: left;
 }
-.test-quote::before{content:'"';font-size:4rem;position:absolute;top:-2rem;left:-2rem;opacity:0.2}
-.test-author{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase}
+.test-quote::before{content:'"';font-size:5rem;color:var(--border2);position:absolute;top:-2.5rem;left:-1rem;z-index:-1}
+.test-author{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.2em;color:var(--muted);text-transform:uppercase;align-self: flex-start;border-left:1px solid var(--white);padding-left:1rem}
 
-.test-img-slider{width:100%;aspect-ratio:3/4;overflow:hidden;border:1px solid var(--border2);position:relative}
-.test-img-slider img{width:100%;height:100%;object-fit:cover;display:none}
+.test-img-slider{width:100%;min-height:300px;overflow:hidden;border:1px solid var(--border2);position:relative}
+.test-img-slider img{width:100%;height:auto;display:none} /* height:auto for long images */
 .test-img-slider img.active{display:block}
+
 .test-slider-nav{display:flex;gap:1rem;margin-top:1rem}
 .test-slider-btn{
   background:transparent;border:1px solid var(--border2);color:var(--white);
