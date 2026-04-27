@@ -315,8 +315,24 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
 
 <script>
 // ══════════════════════
+//   FIREBASE INITIALIZATION
+// ══════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyDIh4ddivOjjHFFUuo51yYiEonf83qcMus",
+  authDomain: "portfolio-a-s.firebaseapp.com",
+  projectId: "portfolio-a-s",
+  storageBucket: "portfolio-a-s.firebasestorage.app",
+  messagingSenderId: "766108465057",
+  appId: "1:766108465057:web:c78deed4f9362bbddafde0",
+  measurementId: "G-Z0P95RHQ81"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ══════════════════════
 //   AUTH (Firebase Auth)
 // ══════════════════════
+
 async function doLogin(){
   const email = document.getElementById('email-input').value.trim();
   const pw = document.getElementById('pw-input').value;
@@ -371,21 +387,9 @@ function switchTab(name,el){
 }
 
 // ══════════════════════
-//   FIREBASE + DATA STORE
+//   TABS
 // ══════════════════════
-const firebaseConfig = {
-  apiKey: "AIzaSyDIh4ddivOjjHFFUuo51yYiEonf83qcMus",
-  authDomain: "portfolio-a-s.firebaseapp.com",
-  projectId: "portfolio-a-s",
-  storageBucket: "portfolio-a-s.firebasestorage.app",
-  messagingSenderId: "766108465057",
-  appId: "1:766108465057:web:c78deed4f9362bbddafde0",
-  measurementId: "G-Z0P95RHQ81"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const DOC = db.collection('portfolio').doc('data');
-console.log("Firebase Initialized!");
+
 
 // In-memory cache so all existing sync code still works
 let fsCache = {};
