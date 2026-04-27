@@ -152,8 +152,17 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
 .test-admin-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
 .test-admin-card{background:var(--card);padding:1.4rem 1.6rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;position:relative}
 .test-admin-card:hover{background:#141414}
-.test-img-previews{display:flex;gap:5px;flex-wrap:wrap;margin-top:0.5rem}
+.test-img-previews{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem}
+.test-img-preview-card{position:relative;width:80px;height:80px;border:1px solid var(--border2);background:var(--bg)}
+.test-img-preview-card img{width:100%;height:100%;object-fit:cover}
+.test-img-preview-card .remove-btn{
+  position:absolute;top:-5px;right:-5px;width:18px;height:18px;
+  background:var(--red);color:#fff;border:none;border-radius:50%;
+  font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 5px rgba(0,0,0,0.5);
+}
 .test-img-mini{width:40px;height:40px;object-fit:cover;border:1px solid var(--border2)}
+
 
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
@@ -363,26 +372,45 @@ function get(key, def) {
   return (fsCache[key] !== undefined && fsCache[key] !== null) ? fsCache[key] : def;
 }
 
+// Save to separate documents to avoid 1MB limit
 function set(key, val) {
   fsCache[key] = val;
-  console.log("Saving to Firestore:", key, val);
-  DOC.set({ [key]: val }, { merge: true })
-    .then(() => console.log("Firestore Sync OK!"))
-    .catch(e => { console.error('Firestore ERR:', e); alert("Error saving: check firewall/blockers"); });
+  console.log("Saving to Firestore document:", key, val);
+  db.collection('portfolio').doc(key).set({ data: val })
+    .then(() => {
+      console.log(`Firestore Sync [${key}] OK!`);
+      // Update localStorage cache too
+      try { localStorage.setItem('portfolio_cache', JSON.stringify(fsCache)); } catch{}
+    })
+    .catch(e => { console.error('Firestore ERR:', e); alert("Error saving: " + e.message); });
 }
+
 
 function flash(id){const e=document.getElementById(id);e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2500);}
 
-// Load from Firestore then render
+// Load from separate documents then render
 async function loadAll() {
   try {
     document.body.style.opacity = '0.5';
-    const snap = await DOC.get();
-    if (snap.exists) {
-      fsCache = snap.data();
+    const keys = ['about', 'projects', 'certs', 'testimonials'];
+    const promises = keys.map(k => db.collection('portfolio').doc(k).get());
+    const snaps = await Promise.all(promises);
+    
+    snaps.forEach((snap, i) => {
+      if (snap.exists) fsCache[keys[i]] = snap.data().data;
+    });
+    
+    // Also check the old 'data' document for migration/legacy
+    const oldSnap = await db.collection('portfolio').doc('data').get();
+    if(oldSnap.exists) {
+      const oldData = oldSnap.data();
+      for(let k in oldData) {
+        if(!fsCache[k]) fsCache[k] = oldData[k];
+      }
     }
   } catch(e) {
-    console.warn('Firestore read failed, using defaults:', e);
+    console.warn('Firestore read failed, using cached/defaults:', e);
+    try { fsCache = JSON.parse(localStorage.getItem('portfolio_cache')||'{}'); } catch{}
   } finally {
     document.body.style.opacity = '1';
   }
@@ -391,6 +419,7 @@ async function loadAll() {
   renderCerts();
   renderTestimonials();
 }
+
 
 // ══════════════════════
 //   ABOUT
@@ -568,40 +597,49 @@ function renderProjects(){
 let certImgB64 = '';
 let editCertIndex = -1;
 
-function previewCertImg(input){
+// ── Centralized Image Compression Utility
+function compressImage(file, maxWidth, quality) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const rawImg = new Image();
+      rawImg.src = e.target.result;
+      rawImg.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = rawImg.width;
+        let height = rawImg.height;
+
+        if (width > maxWidth) {
+          height *= maxWidth / width;
+          width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(rawImg, 0, 0, width, height);
+        
+        // Convert to compressed JPG
+        const b64 = canvas.toDataURL('image/jpeg', quality);
+        resolve(b64);
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function previewCertImg(input){
   const file = input.files[0];
   if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    const rawImg = new Image();
-    rawImg.src = e.target.result;
-    rawImg.onload = () => {
-      // Create canvas for compression
-      const canvas = document.createElement('canvas');
-      const MAX_WIDTH = 600;
-      let width = rawImg.width;
-      let height = rawImg.height;
-
-      if (width > MAX_WIDTH) {
-        height *= MAX_WIDTH / width;
-        width = MAX_WIDTH;
-      }
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(rawImg, 0, 0, width, height);
-      
-      // Convert to compressed JPG (0.7 quality)
-      certImgB64 = canvas.toDataURL('image/jpeg', 0.7);
-      
-      const prev = document.getElementById('ct-img-preview');
-      prev.src = certImgB64;
-      prev.style.display = 'block';
-      console.log("Image compressed. New size:", Math.round(certImgB64.length/1024), "KB");
-    };
-  };
-  reader.readAsDataURL(file);
+  const b64 = await compressImage(file, 800, 0.7);
+  certImgB64 = b64;
+  const prev = document.getElementById('ct-img-preview');
+  prev.src = certImgB64;
+  prev.style.display = 'block';
+  console.log("Cert image compressed:", Math.round(b64.length/1024), "KB");
 }
+
+
 
 function addCert(){
   const nm=document.getElementById('ct-nm').value.trim();
@@ -710,41 +748,37 @@ function renderCerts(){
 let testImgsB64 = [];
 let editTestIndex = -1;
 
-function previewTestImgs(input){
+async function previewTestImgs(input){
   const files = Array.from(input.files);
   if(!files.length) return;
   
-  const container = document.getElementById('ts-img-previews-container');
-  // container.innerHTML = ''; // Keep previous or clear? Let's clear for fresh start
-  testImgsB64 = [];
-  container.innerHTML = '';
-
-  files.forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const rawImg = new Image();
-      rawImg.src = e.target.result;
-      rawImg.onload = () => {
-        const canvas = document.createElement('canvas');
-        const MAX_WIDTH = 600;
-        let width = rawImg.width;
-        let height = rawImg.height;
-        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
-        canvas.width = width; canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(rawImg, 0, 0, width, height);
-        const b64 = canvas.toDataURL('image/jpeg', 0.7);
-        testImgsB64.push(b64);
-        
-        const imgEl = document.createElement('img');
-        imgEl.src = b64;
-        imgEl.className = 'test-img-mini';
-        container.appendChild(imgEl);
-      };
-    };
-    reader.readAsDataURL(file);
-  });
+  // Show a loading/processing state if needed? 
+  // For now let's just loop sequentially
+  for (const file of files) {
+    const b64 = await compressImage(file, 800, 0.7);
+    testImgsB64.push(b64);
+    renderTestImgPreviews();
+    console.log("Testimonial image compressed:", Math.round(b64.length/1024), "KB");
+  }
+  
+  input.value = ''; // Clear for next selection
 }
+
+function removePreviewImg(idx){
+  testImgsB64.splice(idx, 1);
+  renderTestImgPreviews();
+}
+
+function renderTestImgPreviews(){
+  const container = document.getElementById('ts-img-previews-container');
+  container.innerHTML = testImgsB64.map((src, i) => `
+    <div class="test-img-preview-card">
+      <img src="${src}"/>
+      <button class="remove-btn" onclick="removePreviewImg(${i})">×</button>
+    </div>
+  `).join('');
+}
+
 
 function addTestimonial(){
   const name = document.getElementById('ts-name').value.trim();
@@ -787,15 +821,8 @@ function editTestimonial(i){
   document.getElementById('ts-name').value = t.name;
   document.getElementById('ts-text').value = t.text;
   
-  const container = document.getElementById('ts-img-previews-container');
-  container.innerHTML = '';
   testImgsB64 = Array.isArray(t.images) ? [...t.images] : (t.images ? [t.images] : []);
-  testImgsB64.forEach(src => {
-    const imgEl = document.createElement('img');
-    imgEl.src = src;
-    imgEl.className = 'test-img-mini';
-    container.appendChild(imgEl);
-  });
+  renderTestImgPreviews();
   
   document.getElementById('test-form-title').innerText = '✏️ Editing Testimonial';
   document.getElementById('test-edit-banner').style.display = 'block';

@@ -771,15 +771,26 @@ const _db = firebase.firestore();
   // Fetch from Firestore (with localStorage as offline fallback)
   let fsData = {};
   try {
-    const snap = await _db.collection('portfolio').doc('data').get();
-    if (snap.exists) fsData = snap.data();
+    const keys = ['about', 'projects', 'certs', 'testimonials'];
+    const snaps = await Promise.all(keys.map(k => _db.collection('portfolio').doc(k).get()));
+    
+    snaps.forEach((snap, i) => {
+      if (snap.exists) fsData[keys[i]] = snap.data().data;
+    });
+
+    // Fallback for old single-doc structure
+    const oldSnap = await _db.collection('portfolio').doc('data').get();
+    if (oldSnap.exists) {
+      const oldD = oldSnap.data();
+      for(let k in oldD) { if(!fsData[k]) fsData[k] = oldD[k]; }
+    }
   } catch(e) {
     console.warn('Firebase unavailable, using cached/default data');
-    // Try localStorage as fallback
     try { fsData = JSON.parse(localStorage.getItem('portfolio_cache')||'{}'); } catch{}
   }
   // Cache locally for offline visits
   try { localStorage.setItem('portfolio_cache', JSON.stringify(fsData)); } catch{}
+
 
   function gd(key, def) { return (fsData[key] && fsData[key].length !== 0) ? fsData[key] : def; }
 
