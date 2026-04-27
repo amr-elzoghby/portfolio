@@ -230,6 +230,77 @@ nav.stuck{background:rgba(8,8,8,.95);backdrop-filter:blur(14px);border-color:var
 }
 .proj-panel-desc p{font-size:13px;color:rgba(240,237,230,.65);line-height:1.8}
 
+/* TESTIMONIALS (WHAT SAY SENIOR) */
+.test-row{display:grid;grid-template-columns:56px 1fr;gap:1.5rem;align-items:start;padding:1.8rem 0;border-top:1px solid var(--border);transition:padding-left .3s ease, background .3s ease, box-shadow .3s ease;cursor:default;position:relative}
+.test-row:last-child{border-bottom:1px solid var(--border)}
+.test-row:hover{padding-left:.9rem;background:rgba(240,237,230,.06);box-shadow:0 0 30px 5px rgba(240,237,230,.08)}
+.test-n{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--border2);line-height:1;padding-top:.15rem}
+.test-title{font-family:'Bebas Neue',sans-serif;font-size:1.55rem;letter-spacing:.04em;margin-bottom:.8rem;transition:letter-spacing .25s}
+.test-row:hover .test-title{letter-spacing:.08em}
+.test-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:.5rem}
+.test-btn{
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  border:1px solid rgba(240,237,230,.2);
+  padding:0.7rem 1.8rem; /* Larger as requested */
+  color:rgba(240,237,230,.7);
+  background:rgba(240,237,230,.04);
+  cursor:pointer;display:inline-flex;align-items:center;gap:0.7rem;
+  transition:all 0.2s;
+}
+.test-btn:hover{border-color:var(--white);color:var(--white);background:rgba(240,237,230,.08)}
+.test-arrow{
+  width:40px;height:40px;border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.3s;
+}
+.test-arrow:hover{border-color:var(--white);background:rgba(240,237,230,.05)}
+.test-arrow svg{width:16px;height:16px;transition:transform 0.3s}
+.test-arrow:hover svg{transform:translateX(3px)}
+
+/* MODAL OVERLAY FOR SENIOR FEEDBACK */
+#test-modal{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.95);backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.4s cubic-bezier(.16,1,.3,1);
+}
+#test-modal.open{opacity:1;pointer-events:all}
+.test-modal-content{
+  width:90%;max-width:500px; /* Vertical rectangle as requested */
+  background:var(--bg);border:1px solid var(--border2);
+  padding:4rem 3rem;position:relative;
+  transition:transform 0.5s cubic-bezier(.16,1,.3,1);
+  transform:translateY(30px);
+}
+#test-modal.open .test-modal-content{transform:none}
+.test-modal-close{
+  position:absolute;top:1.5rem;right:1.5rem;
+  background:transparent;border:none;color:var(--dim);
+  font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;
+}
+.test-modal-close:hover{color:var(--white)}
+
+#test-text-area{display:none;flex-direction:column;align-items:center;text-align:center}
+#test-img-area{display:none;flex-direction:column;align-items:center;gap:1.5rem}
+
+.test-quote{
+  font-size:1.8rem;font-family:'Bebas Neue',sans-serif;line-height:1.2;
+  letter-spacing:0.02em;color:var(--white);position:relative;
+  margin-bottom:1.5rem;
+}
+.test-quote::before{content:'"';font-size:4rem;position:absolute;top:-2rem;left:-2rem;opacity:0.2}
+.test-author{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:0.2em;color:var(--dim);text-transform:uppercase}
+
+.test-img-slider{width:100%;aspect-ratio:3/4;overflow:hidden;border:1px solid var(--border2);position:relative}
+.test-img-slider img{width:100%;height:100%;object-fit:cover;display:none}
+.test-img-slider img.active{display:block}
+.test-slider-nav{display:flex;gap:1rem;margin-top:1rem}
+.test-slider-btn{
+  background:transparent;border:1px solid var(--border2);color:var(--white);
+  width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+}
+.test-slider-btn:hover{background:var(--white);color:var(--bg)}
+
 /* CERTS */
 .certs-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:1px;background:var(--border);border:1px solid var(--border)}
 .cert-c{background:var(--bg);padding:1.8rem 1.4rem;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;transition:background .3s,box-shadow .4s}
@@ -441,6 +512,29 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   <img id="lightbox-img" src="" alt="Certificate"/>
 </div>
 
+<!-- TESTIMONIAL MODAL -->
+<div id="test-modal">
+  <div class="test-modal-content">
+    <button class="test-modal-close" onclick="closeTestModal()">✕ CLOSE</button>
+    
+    <div id="test-text-area">
+      <div class="test-quote" id="modal-test-quote"></div>
+      <div class="test-author" id="modal-test-author"></div>
+    </div>
+    
+    <div id="test-img-area">
+      <div class="test-img-slider" id="modal-test-slider">
+        <!-- images will be injected here -->
+      </div>
+      <div class="test-slider-nav" id="modal-test-nav">
+        <button class="test-slider-btn" onclick="prevTestImg()">←</button>
+        <button class="test-slider-btn" onclick="nextTestImg()">→</button>
+      </div>
+      <div class="test-author" id="modal-test-author-img"></div>
+    </div>
+  </div>
+</div>
+
 <!-- NAV -->
 <nav id="nav">
   <a href="#hero" class="nav-logo">3MR.DEV</a>
@@ -449,6 +543,7 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
     <li><a href="#skills">Skills</a></li>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#certifications">Certs</a></li>
+    <li><a href="#testimonials">What Say Senior</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
 </nav>
@@ -542,9 +637,17 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
   </div>
 </div>
 
+<!-- WHAT SAY SENIOR -->
+<div class="sec" id="testimonials">
+  <div class="sec-lbl rv">05 — What Say Senior</div>
+  <div class="test-list rv" id="test-list-main">
+    <!-- populated by JS from Firebase -->
+  </div>
+</div>
+
 <!-- CONTACT -->
 <div class="sec" id="contact" style="padding-bottom:5rem">
-  <div class="sec-lbl rv">05 — Contact</div>
+  <div class="sec-lbl rv">06 — Contact</div>
   <div class="c-box rv">
     <div class="c-left">
       <div class="c-head">LET'S<br/><em>BUILD</em><br/>TOGETHER.</div>
@@ -602,7 +705,7 @@ document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.le
 (function t(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(t)})();
 
 // cursor grow on interactive
-document.querySelectorAll('a,button,.btn,.cert-c,.proj-row,.sk-chip').forEach(el=>{
+document.querySelectorAll('a,button,.btn,.cert-c,.proj-row,.sk-chip,.test-row,.test-btn,.test-arrow').forEach(el=>{
   el.addEventListener('mouseenter',()=>{ring.style.width='60px';ring.style.height='60px';ring.style.borderColor='rgba(240,237,230,.5)'});
   el.addEventListener('mouseleave',()=>{ring.style.width='34px';ring.style.height='34px';ring.style.borderColor='rgba(240,237,230,.22)'});
 });
@@ -762,6 +865,38 @@ const _db = firebase.firestore();
     }
   }
 
+  /* ── TESTIMONIALS (WHAT SAY SENIOR) ── */
+  const tests = gd('testimonials', []);
+  const testEl = document.getElementById('test-list-main');
+  if(testEl){
+    if(!tests.length){
+      testEl.innerHTML='<p style="color:var(--muted);font-family:\'Space Mono\',monospace;font-size:11px;padding:2rem 0">Nothing shared yet.</p>';
+    } else {
+      testEl.innerHTML = tests.map((t, i) => {
+        return `
+        <div class="test-row">
+          <div class="test-n">${String(i + 1).padStart(2, '0')}</div>
+          <div>
+            <div class="test-title">${t.name}</div>
+            <div class="test-actions">
+              <button class="test-btn" onclick="openTestModal('${i}', 'text')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                What He Said
+              </button>
+              <button class="test-btn" onclick="openTestModal('${i}', 'img')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                Photos
+              </button>
+              <div class="test-arrow" onclick="openTestModal('${i}', 'text')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
   // Re-trigger reveal animations after dynamic content loads
   setTimeout(()=>{
     document.querySelectorAll('.words-reveal').forEach(el=>{
@@ -798,10 +933,78 @@ function openLightbox(src){
   lb.classList.add('open');
 }
 function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
+  const lb=document.getElementById('lightbox');
+  lb.classList.remove('open');
   document.getElementById('lightbox-img').src='';
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLightbox();});
+
+// ── Testimonial Modal Logic
+let currentTestImages = [];
+let currentTestImgIdx = 0;
+
+function openTestModal(idx, type) {
+  const tests = JSON.parse(localStorage.getItem('portfolio_cache')||'{}').testimonials || [];
+  const t = tests[idx];
+  if(!t) return;
+  
+  const modal = document.getElementById('test-modal');
+  const textArea = document.getElementById('test-text-area');
+  const imgArea = document.getElementById('test-img-area');
+  
+  textArea.style.display = 'none';
+  imgArea.style.display = 'none';
+  
+  if(type === 'text') {
+    textArea.style.display = 'flex';
+    document.getElementById('modal-test-quote').innerText = t.text || "No text available.";
+    document.getElementById('modal-test-author').innerText = t.name;
+  } else {
+    imgArea.style.display = 'flex';
+    document.getElementById('modal-test-author-img').innerText = t.name;
+    const slider = document.getElementById('modal-test-slider');
+    slider.innerHTML = '';
+    currentTestImages = Array.isArray(t.images) ? t.images : (t.images ? [t.images] : []);
+    currentTestImgIdx = 0;
+    
+    if(currentTestImages.length === 0) {
+      slider.innerHTML = '<div style="padding:4rem; color:var(--dim); font-family:\'Space Mono\',monospace; font-size:10px">No images uploaded.</div>';
+      document.getElementById('modal-test-nav').style.display = 'none';
+    } else {
+      currentTestImages.forEach((src, i) => {
+        const img = document.createElement('img');
+        img.src = src;
+        if(i === 0) img.className = 'active';
+        slider.appendChild(img);
+      });
+      document.getElementById('modal-test-nav').style.display = currentTestImages.length > 1 ? 'flex' : 'none';
+    }
+  }
+  
+  modal.classList.add('open');
+}
+
+function closeTestModal() {
+  document.getElementById('test-modal').classList.remove('open');
+}
+
+function nextTestImg() {
+  const imgs = document.querySelectorAll('#modal-test-slider img');
+  if(imgs.length < 2) return;
+  imgs[currentTestImgIdx].classList.remove('active');
+  currentTestImgIdx = (currentTestImgIdx + 1) % imgs.length;
+  imgs[currentTestImgIdx].classList.add('active');
+}
+
+function prevTestImg() {
+  const imgs = document.querySelectorAll('#modal-test-slider img');
+  if(imgs.length < 2) return;
+  imgs[currentTestImgIdx].classList.remove('active');
+  currentTestImgIdx = (currentTestImgIdx - 1 + imgs.length) % imgs.length;
+  imgs[currentTestImgIdx].classList.add('active');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeLightbox();closeTestModal();}});
+
 
 // ── Hero image tilt on mouse
 const heroCircle=document.querySelector('.hero-circle-col');

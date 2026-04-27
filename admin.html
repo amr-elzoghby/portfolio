@@ -147,6 +147,14 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
   text-transform:uppercase;
 }
 #edit-banner.visible{display:block}
+
+/* TESTIMONIAL ADMIN */
+.test-admin-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);margin-bottom:1.5rem}
+.test-admin-card{background:var(--card);padding:1.4rem 1.6rem;display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;position:relative}
+.test-admin-card:hover{background:#141414}
+.test-img-previews{display:flex;gap:5px;flex-wrap:wrap;margin-top:0.5rem}
+.test-img-mini{width:40px;height:40px;object-fit:cover;border:1px solid var(--border2)}
+
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
@@ -182,6 +190,7 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
     <div class="tab active" onclick="switchTab('about',this)">About Me</div>
     <div class="tab" onclick="switchTab('projects',this)">Projects</div>
     <div class="tab" onclick="switchTab('certs',this)">Certifications</div>
+    <div class="tab" onclick="switchTab('tests',this)">What Say Senior</div>
   </div>
 
   <!-- ══ ABOUT ══ -->
@@ -257,6 +266,37 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
       <button class="save-btn" id="ct-save-btn" onclick="addCert()">Add Certification</button>
       <button class="save-btn" id="ct-cancel-btn" style="display:none; background:var(--red); color:#fff; margin-left:10px" onclick="cancelEditCert()">Cancel Edit</button>
       <span class="saved-msg" id="cert-saved">✓ Saved!</span>
+    </div>
+  </div>
+
+  <!-- ══ TESTIMONIALS ══ -->
+  <div class="panel" id="panel-tests">
+    <div class="panel-title">What Say Senior</div>
+    <div class="panel-sub">Manage testimonials and senior feedback</div>
+
+    <div id="test-admin-list"></div>
+
+    <hr class="div"/>
+    <div class="add-box">
+      <div class="add-box-title" id="test-form-title">➕ Add New Testimonial</div>
+      <div class="field"><label>Senior Name *</label><input type="text" id="ts-name" placeholder="John Doe — Senior DevOps @ Google"/></div>
+      <div class="field"><label>What He Said *</label><textarea id="ts-text" style="min-height:120px" placeholder="Amr is an exceptional talent..."></textarea></div>
+      
+      <div class="field">
+        <label>Photos (Select multiple if needed)</label>
+        <div class="upload-area" onclick="document.getElementById('ts-img-input').click()">
+          <input type="file" id="ts-img-input" accept="image/*" multiple onchange="previewTestImgs(this)"/>
+          <label>📎 Click to upload images</label>
+          <div id="ts-img-previews-container" class="test-img-previews"></div>
+        </div>
+      </div>
+
+      <div id="test-edit-banner" style="display:none; background:rgba(255,200,50,.1); border:1px solid rgba(255,200,50,.3); padding:.6rem 1rem; margin-bottom:1rem; font-family:'Space Mono',monospace; font-size:10px; color:#ffcc44;">
+        ✏️ Editing Testimonial — <span id="test-edit-name"></span>
+      </div>
+      <button class="save-btn" id="ts-save-btn" onclick="addTestimonial()">Save Testimonial</button>
+      <button class="save-btn" id="ts-cancel-btn" style="display:none; background:var(--red); color:#fff; margin-left:10px" onclick="resetTestForm()">Cancel Edit</button>
+      <span class="saved-msg" id="test-saved">✓ Saved!</span>
     </div>
   </div>
 </div>
@@ -349,6 +389,7 @@ async function loadAll() {
   loadAbout();
   renderProjects();
   renderCerts();
+  renderTestimonials();
 }
 
 // ══════════════════════
@@ -662,6 +703,137 @@ function renderCerts(){
     </div>`).join('')}
   </div>`;
 }
+
+// ══════════════════════
+//   TESTIMONIALS
+// ══════════════════════
+let testImgsB64 = [];
+let editTestIndex = -1;
+
+function previewTestImgs(input){
+  const files = Array.from(input.files);
+  if(!files.length) return;
+  
+  const container = document.getElementById('ts-img-previews-container');
+  // container.innerHTML = ''; // Keep previous or clear? Let's clear for fresh start
+  testImgsB64 = [];
+  container.innerHTML = '';
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const rawImg = new Image();
+      rawImg.src = e.target.result;
+      rawImg.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 600;
+        let width = rawImg.width;
+        let height = rawImg.height;
+        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(rawImg, 0, 0, width, height);
+        const b64 = canvas.toDataURL('image/jpeg', 0.7);
+        testImgsB64.push(b64);
+        
+        const imgEl = document.createElement('img');
+        imgEl.src = b64;
+        imgEl.className = 'test-img-mini';
+        container.appendChild(imgEl);
+      };
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function addTestimonial(){
+  const name = document.getElementById('ts-name').value.trim();
+  const text = document.getElementById('ts-text').value.trim();
+  if(!name || !text){ alert("Name and Text are required."); return; }
+  
+  const tests = get('testimonials', []);
+  const tData = {
+    name, text,
+    images: testImgsB64.length ? testImgsB64 : (editTestIndex > -1 ? tests[editTestIndex].images : [])
+  };
+
+  if(editTestIndex > -1) tests[editTestIndex] = tData;
+  else tests.push(tData);
+
+  set('testimonials', tests);
+  resetTestForm();
+  renderTestimonials();
+  flash('test-saved');
+}
+
+function resetTestForm(){
+  editTestIndex = -1;
+  document.getElementById('ts-name').value = '';
+  document.getElementById('ts-text').value = '';
+  document.getElementById('ts-img-input').value = '';
+  document.getElementById('ts-img-previews-container').innerHTML = '';
+  document.getElementById('test-edit-banner').style.display = 'none';
+  document.getElementById('test-form-title').innerText = '➕ Add New Testimonial';
+  document.getElementById('ts-save-btn').innerText = 'Save Testimonial';
+  document.getElementById('ts-cancel-btn').style.display = 'none';
+  testImgsB64 = [];
+}
+
+function editTestimonial(i){
+  const tests = get('testimonials', []);
+  const t = tests[i];
+  editTestIndex = i;
+  
+  document.getElementById('ts-name').value = t.name;
+  document.getElementById('ts-text').value = t.text;
+  
+  const container = document.getElementById('ts-img-previews-container');
+  container.innerHTML = '';
+  testImgsB64 = Array.isArray(t.images) ? [...t.images] : (t.images ? [t.images] : []);
+  testImgsB64.forEach(src => {
+    const imgEl = document.createElement('img');
+    imgEl.src = src;
+    imgEl.className = 'test-img-mini';
+    container.appendChild(imgEl);
+  });
+  
+  document.getElementById('test-form-title').innerText = '✏️ Editing Testimonial';
+  document.getElementById('test-edit-banner').style.display = 'block';
+  document.getElementById('test-edit-name').innerText = t.name;
+  document.getElementById('ts-save-btn').innerText = '💾 Update Testimonial';
+  document.getElementById('ts-cancel-btn').style.display = 'inline-block';
+  
+  window.scrollTo({top: document.getElementById('panel-tests').offsetTop - 80, behavior:'smooth'});
+}
+
+function deleteTestimonial(i){
+  if(!confirm("Delete this testimonial?")) return;
+  const tests = get('testimonials', []);
+  tests.splice(i, 1);
+  set('testimonials', tests);
+  if(editTestIndex === i) resetTestForm();
+  renderTestimonials();
+}
+
+function renderTestimonials(){
+  const tests = get('testimonials', []);
+  const el = document.getElementById('test-admin-list');
+  if(!tests.length){ el.innerHTML = '<div class="empty-state">No testimonials yet — add one below ↓</div>'; return; }
+  el.innerHTML = '<div class="test-admin-list">' + tests.map((t, i) => `
+    <div class="test-admin-card">
+      <div class="proj-card-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="proj-card-info" style="flex:1">
+        <div class="proj-card-title">${t.name}</div>
+        <div class="proj-card-desc" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${t.text}</div>
+        <div class="test-img-previews">${(t.images||[]).map(img => `<img class="test-img-mini" src="${img}">`).join('')}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:5px">
+        <button class="proj-del" style="color:var(--white); border-color:var(--border2)" onclick="editTestimonial(${i})">✏️ Edit</button>
+        <button class="proj-del" onclick="deleteTestimonial(${i})">✕ Delete</button>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
 </script>
 </body>
 </html>
