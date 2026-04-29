@@ -315,6 +315,19 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
 
 <script>
 // ══════════════════════
+//   XSS SANITIZER — بيمنع حقن HTML ضار في الواجهة
+// ══════════════════════
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+// ══════════════════════
 //   FIREBASE INITIALIZATION
 // ══════════════════════
 const firebaseConfig = {
@@ -606,9 +619,9 @@ function renderProjects(){
     <div class="proj-admin-card">
       <div class="proj-card-num">${String(i+1).padStart(2,'0')}</div>
       <div class="proj-card-info">
-        <div class="proj-card-title">${p.title}</div>
-        ${p.desc?`<div class="proj-card-desc">${p.desc}</div>`:''}
-        <div class="proj-card-stack">${(p.stack||[]).map(t=>`<span class="proj-tag">${t}</span>`).join('')}</div>
+        <div class="proj-card-title">${esc(p.title)}</div>
+        ${p.desc?`<div class="proj-card-desc">${esc(p.desc)}</div>`:''}
+        <div class="proj-card-stack">${(p.stack||[]).map(t=>`<span class="proj-tag">${esc(t)}</span>`).join('')}</div>
       </div>
       <div style="display:flex; flex-direction:column; gap:5px">
         <button class="proj-del" style="color:var(--white); border-color:var(--border2)" onclick="editProject(${i})">✏️ Edit</button>
@@ -759,11 +772,11 @@ function renderCerts(){
       </div>
       ${c.img?`<img class="cert-img-thumb" src="${c.img}" alt="cert"/>`:''}
       <div>
-        <div class="cert-card-iss">${c.iss||'—'}</div>
-        <div class="cert-card-name">${c.nm}</div>
-        ${c.desc?`<div class="cert-card-desc">${c.desc}</div>`:''}
+        <div class="cert-card-iss">${esc(c.iss)||'—'}</div>
+        <div class="cert-card-name">${esc(c.nm)}</div>
+        ${c.desc?`<div class="cert-card-desc">${esc(c.desc)}</div>`:''}
       </div>
-      <div class="cert-card-dt">${c.dt||''}</div>
+      <div class="cert-card-dt">${esc(c.dt)||''}</div>
     </div>`).join('')}
   </div>`;
 }
@@ -876,8 +889,8 @@ function renderTestimonials(){
     <div class="test-admin-card">
       <div class="proj-card-num">${String(i+1).padStart(2,'0')}</div>
       <div class="proj-card-info" style="flex:1">
-        <div class="proj-card-title">${t.name}</div>
-        <div class="proj-card-desc" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${t.text}</div>
+        <div class="proj-card-title">${esc(t.name)}</div>
+        <div class="proj-card-desc" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${esc(t.text)}</div>
         <div class="test-img-previews">${(t.images||[]).map(img => `<img class="test-img-mini" src="${img}">`).join('')}</div>
       </div>
       <div style="display:flex; flex-direction:column; gap:5px">

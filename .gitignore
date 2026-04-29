@@ -1,0 +1,18 @@
+# Terraform
+infra/.terraform/
+infra/.terraform.lock.hcl
+infra/terraform.tfstate
+infra/terraform.tfstate.backup
+infra/*.tfplan
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Local env (لو حطيت متغيرات محلية)
+.env
+.env.local
