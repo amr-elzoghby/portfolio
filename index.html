@@ -578,7 +578,7 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
 
     <div class="hero-circle-col">
       <div class="hero-circle">
-        <img src="6039477467568868704.jpg" alt="Amr Saad"/>
+        <img id="hero-img" src="6039477467568868704.jpg" alt="Amr Saad"/>
         <div class="hero-ring"></div>
       </div>
       <span class="hero-circle-lbl">Amr Saad — Cairo, EG</span>
@@ -619,17 +619,8 @@ footer span{font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:.1
 <!-- SKILLS -->
 <div class="sec" id="skills">
   <div class="sec-lbl rv">02 — Skills</div>
-  <div class="sk-grid rv">
-    <span class="sk-chip">AWS</span>
-    <span class="sk-chip">Terraform</span>
-    <span class="sk-chip">Docker</span>
-    <span class="sk-chip">GitHub Actions</span>
-    <span class="sk-chip">Linux</span>
-    <span class="sk-chip">Grafana</span>
-    <span class="sk-chip">Nginx</span>
-    <span class="sk-chip">Python</span>
-    <span class="sk-chip">Bash</span>
-    <span class="sk-chip">Git / GitHub</span>
+  <div class="sk-grid rv" id="skills-grid">
+    <!-- populated by JS from Firebase -->
   </div>
 </div>
 
@@ -815,6 +806,11 @@ const _db = firebase.firestore();
   const hDesc = document.querySelector('.hero-desc');
   if(hDesc) hDesc.innerHTML = ab.heroDesc || aboutDef.heroDesc;
 
+  if(ab.profileImg) {
+    const hImg = document.getElementById('hero-img');
+    if(hImg) hImg.src = ab.profileImg;
+  }
+
   const abEl=document.getElementById('about-body');
   if(abEl){
     abEl.innerHTML=`
@@ -822,6 +818,13 @@ const _db = firebase.firestore();
       <p class="words-reveal">${ab.p1||aboutDef.p1}</p>
       <p class="words-reveal">${ab.p2||aboutDef.p2}</p>
       <p class="words-reveal"><em>${ab.p3||aboutDef.p3}</em></p>`;
+  }
+
+  /* ── SKILLS ── */
+  const skGrid = document.getElementById('skills-grid');
+  const skillsArray = Array.isArray(ab.skills) && ab.skills.length > 0 ? ab.skills : ["AWS", "Terraform", "Docker", "GitHub Actions", "Linux", "Grafana", "Nginx", "Python", "Bash", "Git / GitHub"];
+  if(skGrid) {
+    skGrid.innerHTML = skillsArray.map(s => `<span class="sk-chip">${s}</span>`).join('');
   }
 
   /* ── PROJECTS ── */

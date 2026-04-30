@@ -216,6 +216,21 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
     <div class="field"><label>Paragraph 1</label><textarea id="ab-p1"></textarea></div>
     <div class="field"><label>Paragraph 2</label><textarea id="ab-p2"></textarea></div>
     <div class="field"><label>Paragraph 3 (Quote / Italic)</label><input type="text" id="ab-p3"/></div>
+    <hr class="div" style="margin:1.5rem 0"/>
+    <div class="field">
+      <label>Profile Image</label>
+      <div class="upload-area" onclick="document.getElementById('ab-img-input').click()">
+        <input type="file" id="ab-img-input" accept="image/*" onchange="previewAboutImg(this)" style="display:none;"/>
+        <label>📎 Click to upload new profile image (JPG, PNG)</label>
+        <img id="ab-img-preview" class="upload-preview" alt="preview" style="display:none; width: 120px; height: 120px; border-radius: 50%; margin: 10px auto; object-fit: cover;"/>
+      </div>
+    </div>
+    <div class="field">
+      <label>Skills (press Enter after each skill)</label>
+      <div class="tags-wrap" id="sk-tags-wrap" onclick="document.getElementById('sk-tag-inp').focus()">
+        <input id="sk-tag-inp" placeholder="AWS, Terraform…" onkeydown="addTag(event,'sk')"/>
+      </div>
+    </div>
     <button class="save-btn" onclick="saveAbout()">Save Changes</button>
     <span class="saved-msg" id="about-saved">✓ Saved!</span>
   </div>
@@ -477,6 +492,29 @@ function loadAbout(){
   document.getElementById('ab-p1').value=d.p1||DEF_ABOUT.p1;
   document.getElementById('ab-p2').value=d.p2||DEF_ABOUT.p2;
   document.getElementById('ab-p3').value=d.p3||DEF_ABOUT.p3;
+  
+  if(d.profileImg){
+    document.getElementById('ab-img-preview').src = d.profileImg;
+    document.getElementById('ab-img-preview').style.display = 'block';
+    aboutImgB64 = d.profileImg;
+  } else {
+    document.getElementById('ab-img-preview').style.display = 'none';
+    aboutImgB64 = '';
+  }
+
+  tags.sk = Array.isArray(d.skills) ? [...d.skills] : ["AWS", "Terraform", "Docker", "GitHub Actions", "Linux", "Grafana", "Nginx", "Python", "Bash", "Git / GitHub"];
+  renderTags('sk');
+}
+
+let aboutImgB64 = '';
+async function previewAboutImg(input){
+  const file = input.files[0];
+  if(!file) return;
+  const b64 = await compressImage(file, 800, 0.7);
+  aboutImgB64 = b64;
+  const prev = document.getElementById('ab-img-preview');
+  prev.src = aboutImgB64;
+  prev.style.display = 'block';
 }
 function saveAbout(){
   set('about',{
@@ -486,6 +524,8 @@ function saveAbout(){
     p1:document.getElementById('ab-p1').value,
     p2:document.getElementById('ab-p2').value,
     p3:document.getElementById('ab-p3').value,
+    profileImg: aboutImgB64,
+    skills: [...tags.sk]
   });
   flash('about-saved');
 }
@@ -493,7 +533,7 @@ function saveAbout(){
 // ══════════════════════
 //   TAGS
 // ══════════════════════
-let tags={pj:[]};
+let tags={pj:[], sk:[]};
 function addTag(e,ns){
   if(e.key==='Enter'||e.key===','){
     e.preventDefault();
