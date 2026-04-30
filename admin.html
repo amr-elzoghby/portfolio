@@ -226,10 +226,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
       </div>
     </div>
     <div class="field">
-      <label>Skills (press Enter after each skill)</label>
+      <label>Skills</label>
       <div class="tags-wrap" id="sk-tags-wrap" onclick="document.getElementById('sk-tag-inp').focus()">
         <input id="sk-tag-inp" placeholder="AWS, Terraform…" onkeydown="addTag(event,'sk')"/>
       </div>
+      <button onclick="addTagBtnClick('sk')" style="margin-top:8px; padding:6px 12px; background:var(--bg2); color:var(--white); border:1px solid var(--border); border-radius:4px; cursor:pointer;">+ Add Skill</button>
     </div>
     <button class="save-btn" onclick="saveAbout()">Save Changes</button>
     <span class="saved-msg" id="about-saved">✓ Saved!</span>
@@ -251,10 +252,11 @@ hr.div{border:none;border-top:1px solid var(--border);margin:2rem 0}
       </div>
       <div class="field"><label>Description</label><textarea id="pj-desc" placeholder="What does it do and what problem does it solve?"></textarea></div>
       <div class="field">
-        <label>Tech Stack (press Enter after each tag)</label>
+        <label>Tech Stack</label>
         <div class="tags-wrap" id="pj-tags-wrap" onclick="document.getElementById('pj-tag-inp').focus()">
           <input id="pj-tag-inp" placeholder="AWS, Docker…" onkeydown="addTag(event,'pj')"/>
         </div>
+        <button onclick="addTagBtnClick('pj')" style="margin-top:8px; padding:6px 12px; background:var(--bg2); color:var(--white); border:1px solid var(--border); border-radius:4px; cursor:pointer;">+ Add Tag</button>
       </div>
       <div id="edit-banner">✏️ Edit Mode — <span id="edit-banner-name"></span></div>
       <button class="save-btn" id="pj-save-btn" onclick="addProject()">✨ Add Project</button>
@@ -543,6 +545,15 @@ function addTag(e,ns){
     e.target.value='';
     renderTags(ns);
   }
+}
+function addTagBtnClick(ns){
+  const inp = document.getElementById(ns+'-tag-inp');
+  if(!inp) return;
+  const v = inp.value.trim().replace(',','');
+  if(!v) return;
+  tags[ns].push(v);
+  inp.value = '';
+  renderTags(ns);
 }
 function removeTag(ns,i){tags[ns].splice(i,1);renderTags(ns);}
 function renderTags(ns){
